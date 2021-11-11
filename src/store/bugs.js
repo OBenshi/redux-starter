@@ -15,7 +15,7 @@
 import { createSelector } from 'reselect';
 import { createSlice } from '@reduxjs/toolkit';
 import { findIndexById } from '../helper/helpFuncs';
-
+import { apiCallBegan } from './api';
 //§ --------------------------- END !SECTION IMPORTS ----------------------- */
 
 //! init id for bugs don't touch
@@ -27,7 +27,7 @@ let lastId = 0;
 
 const slice = createSlice({
   name: 'bugs',
-  initialState: [],
+  initialState: { list: [], loading: false, lastFetch: null },
 
   //€ -------------------------------------------------------------------------- */
   //§                             SECTION REDUCERS                               */
@@ -35,7 +35,7 @@ const slice = createSlice({
   reducers: {
     //° ──────────────────────────────────────────── STUB: BUG ADDED ─────
     bugAdded: (bugs, action) => {
-      bugs.push({
+      bugs.list.push({
         id: ++lastId,
         description: action.payload,
         resolved: false,
@@ -45,22 +45,39 @@ const slice = createSlice({
 
     //° ───────────────────────────────────────── STUB: BUG REMOVED ─────
     bugRemoved: (bugs, action) => {
-      bugs.splice(findIndexB(bugs, action.payload.id), 1);
+      bugs.list.splice(findIndexB(bugs.list, action.payload.id), 1);
     },
 
     //° ──────────────────────────────────────── STUB: BUG RESOLVED ─────
     bugResolved: (bugs, action) => {
-      const index = findIndexById(bugs, action.payload);
-      bugs[index].resolved = true;
+      const index = findIndexById(bugs.list, action.payload);
+      bugs.list[index].resolved = true;
     },
 
     //° ────────────────────────────────── STUB: ASSIGN TEAM MEMBER ─────
     assignTeamMember: (bugs, action) => {
       const { bugId, userId } = action.payload;
       // const userIndex = findIndexById(users, userId);
-      const bugIndex = findIndexById(bugs, bugId);
+      const bugIndex = findIndexById(bugs.list, bugId);
       // users[userIndex].bugs.push(bugs[bugIndex]);
-      bugs[bugIndex].teamMember = userId;
+      bugs.list[bugIndex].teamMember = userId;
+    },
+
+    //° ──────────────────────────────────────── STUB: BUGS RECEIVED ─────
+    bugsReceived: (bugs, action) => {
+      action.payload.map((bug) => bugs.list.push(bug));
+      bugs.loading = false;
+      bugs.lastFetch = Date.now();
+    },
+
+    //° ────────────────────────────────────── STUB: BUGS REQUESTED ─────
+    bugsRequested: (bugs, action) => {
+      bugs.loading = true;
+    },
+
+    //° ───────────────────────────────── STUB: BUGS REQUEST FAILED ─────
+    bugsRequestFailed: (bugs, action) => {
+      bugs.loading = false;
     },
 
     //§ -------------------------- END !SECTION REDUCERS ---------------------- */
@@ -68,6 +85,24 @@ const slice = createSlice({
 });
 
 //§ ------------------------ END !SECTION CREATE SLICE -------------------- */
+
+//€ -------------------------------------------------------------------------- */
+//§                          SECTION ACTION CREATORS                           */
+//€ -------------------------------------------------------------------------- */
+
+export const loadBugs = () => (dispatch, getState) => {
+  const { lastFetch } = getState().entities.bugs;
+  if (Math.floor((Date.now() - lastFetch) / 60000) < 10) return;
+  return dispatch(
+    apiCallBegan({
+      url: 'bugs',
+      onStart: bugsRequested.type,
+      onSuccess: bugsReceived.type,
+      onError: bugsRequestFailed.type,
+    })
+  );
+};
+//§ ---------------------- END !SECTION ACTION CREATORS ---------------------- */
 
 //€ -------------------------------------------------------------------------- */
 //§                              SECTION SELECTORS                             */
@@ -93,6 +128,13 @@ export const getBugsByUser = (userId) =>
 //€ -------------------------------------------------------------------------- */
 
 export default slice.reducer;
-export const { bugAdded, bugRemoved, bugResolved, assignTeamMember } =
-  slice.actions;
+export const {
+  bugAdded,
+  bugRemoved,
+  bugResolved,
+  assignTeamMember,
+  bugsReceived,
+  bugsRequested,
+  bugsRequestFailed,
+} = slice.actions;
 //§ -------------------------- END !SECTION EXPORTS -------------------------- */
