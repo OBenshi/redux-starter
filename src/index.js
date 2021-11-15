@@ -1,23 +1,19 @@
 import configureStore from './store/configureStore';
 
 import {
-  bugAdded,
-  bugRemoved,
-  bugResolved,
-  bugAssignedToUser,
-  getBugsByUser,
-  loadBugs,
   addBug,
-  resolveBug,
   assignBugToUser,
+  getBugsByUser,
+  getUnresolvedBugs,
+  loadBugs,
 } from './store/bugs';
 
-import {
-  addProject,
-  updateProject,
-  removeProject,
-  getUnresolvedBugs,
-} from './store/projects';
+// import {
+//   addProject,
+//   updateProject,
+//   removeProject,
+//   getUnresolvedBugs,
+// } from './store/projects';
 
 import { userAdded } from './store/users';
 

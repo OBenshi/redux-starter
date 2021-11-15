@@ -79,11 +79,23 @@ const slice = createSlice({
   },
 });
 
+export default slice.reducer;
+
 //§ ------------------------ END !SECTION CREATE SLICE -------------------- */
 
 //€ -------------------------------------------------------------------------- */
 //§                          SECTION ACTION CREATORS                           */
 //€ -------------------------------------------------------------------------- */
+
+export const {
+  bugAdded,
+  bugRemoved,
+  bugResolved,
+  bugAssignedToUser,
+  bugsReceived,
+  bugsRequested,
+  bugsRequestFailed,
+} = slice.actions;
 
 //° ────────────────────────────────────────────────────────── STUB: LOAD BUGS ─────
 export const loadBugs = () => (dispatch, getState) => {
@@ -100,13 +112,14 @@ export const loadBugs = () => (dispatch, getState) => {
 };
 
 //° ─────────────────────────────────────────────────── STUB: ADD BUG ─────
-export const addBug = (bug) =>
-  apiCallBegan({
+export const addBug = (bug) => {
+  return apiCallBegan({
     url: 'bugs',
     method: 'POST',
     reqBody: bug,
     onSuccess: bugAdded.type,
   });
+};
 
 //° ─────────────────────────────────────────────────── STUB: RESOLVE BUG ─────
 export const resolveBug = (bugId) =>
@@ -134,7 +147,7 @@ export const assignBugToUser = (bugId, userId) =>
 
 //° ─────────────────────────────────────────────── STUB: GET UNRESOLVED BUGS ─────
 export const getUnresolvedBugs = createSelector(
-  (state) => state.entities.bugs,
+  (state) => state.entities.bugs.list,
   (bugs) => bugs.filter((bug) => !bug.resolved)
 );
 
@@ -145,19 +158,3 @@ export const getBugsByUser = (userId) =>
     (bugs) => bugs.filter((bug) => bug.teamMember === userId)
   );
 //§ ------------------------- END !SECTION SELECTORS ------------------------- */
-
-//€ -------------------------------------------------------------------------- */
-//§                                 SECTION EXPORTS                            */
-//€ -------------------------------------------------------------------------- */
-
-export default slice.reducer;
-export const {
-  bugAdded,
-  bugRemoved,
-  bugResolved,
-  bugAssignedToUser,
-  bugsReceived,
-  bugsRequested,
-  bugsRequestFailed,
-} = slice.actions;
-//§ -------------------------- END !SECTION EXPORTS -------------------------- */

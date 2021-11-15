@@ -3,7 +3,7 @@ const errCheck = (store) => (next) => (action) => {
     console.log('error! error! shit shit shit!');
     return;
   }
-  next(action);
+  return next(action);
 };
 
 export default errCheck;

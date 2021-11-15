@@ -8,6 +8,9 @@ export default function () {
   return configureStore({
     reducer,
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(logger).concat(errCheck).concat(api),
+      getDefaultMiddleware()
+        //concat(logger).
+        .concat(errCheck)
+        .concat(api),
   });
 }
