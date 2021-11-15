@@ -4,11 +4,24 @@ const api =
   (next) =>
   async (action) => {
     if (action.type !== actions.apiCallBegan.type) return next(action);
-    const { url, onSuccess, onError, onStart } = action.payload;
+    const { url, onSuccess, onError, onStart, method, reqBody } =
+      action.payload;
     onStart && dispatch({ type: onStart });
     next(action);
     try {
-      const response = await fetch(`http://localhost:9001/api/${url}`);
+      const fetchOptions = {
+        method: method ? method : 'GET', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: reqBody ? JSON.stringify(reqBody) : null, // body data type must match "Content-Type" header
+      };
+      console.log(`fetchOptions`, fetchOptions);
+      const response = await fetch(
+        `http://localhost:9001/api/${url}`,
+        fetchOptions
+      );
       const data = await response.json();
       dispatch(actions.apiCallSuccess(data));
       onSuccess && dispatch({ type: onSuccess, payload: data });

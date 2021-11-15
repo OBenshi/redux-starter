@@ -34,7 +34,7 @@ const slice = createSlice({
   //€ -------------------------------------------------------------------------- */
   reducers: {
     //° ─────────────────────────────────────────────────────────── STUB: ADD USER ─────
-    addUser: (users, action) => {
+    userAdded: (users, action) => {
       users.push({
         id: ++lastId,
         name: action.payload.name,
@@ -42,20 +42,37 @@ const slice = createSlice({
         bugs: [],
       });
     },
-    addBugToUser: (users, action) => {
-      const user = users.find((u) => u.id === action.payload.userId);
-      user.bugs.push(action.payload.bugId);
-    },
+    // bugAssignedToUser: (users, action) => {
+    //   const user = users.find((u) => u.id === action.payload.userId);
+    //   user.bugs.push(action.payload.bugId);
+    // },
+    //§ ------------------------ END !SECTION REDUCERS -------------------- */
   },
 });
 
 //§ ------------------------ END !SECTION CREATE SLICE ----------------------- */
 
 //€ -------------------------------------------------------------------------- */
+//§                          SECTION ACTION CREATORS                          */
+//€ -------------------------------------------------------------------------- */
+
+//° ─────────────────────────────────────────────────── STUB: ADD USER ──────────
+export const addUser = (userId) => (bugId) => {
+  apiCallBegan({
+    url: 'bugs/' + id,
+    method: 'PATCH',
+    reqBody: { resolved: true },
+    onSuccess: bugResolved.type,
+  });
+};
+
+//§ ------------------------ END !SECTION ACTION CREATORS -------------------- */
+
+//€ -------------------------------------------------------------------------- */
 //§                                 SECTION EXPORTS                            */
 //€ -------------------------------------------------------------------------- */
 
 export default slice.reducer;
-export const { addUser, addBugToUser } = slice.actions;
+export const { userAdded } = slice.actions;
 
 //§ -------------------------- END !SECTION EXPORTS -------------------------- */

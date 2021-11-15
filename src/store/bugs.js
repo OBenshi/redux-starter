@@ -35,12 +35,7 @@ const slice = createSlice({
   reducers: {
     //° ──────────────────────────────────────────── STUB: BUG ADDED ─────
     bugAdded: (bugs, action) => {
-      bugs.list.push({
-        id: ++lastId,
-        description: action.payload,
-        resolved: false,
-        teamMember: null,
-      });
+      bugs.list.push(action.payload);
     },
 
     //° ───────────────────────────────────────── STUB: BUG REMOVED ─────
@@ -50,13 +45,13 @@ const slice = createSlice({
 
     //° ──────────────────────────────────────── STUB: BUG RESOLVED ─────
     bugResolved: (bugs, action) => {
-      const index = findIndexById(bugs.list, action.payload);
+      const index = findIndexById(bugs.list, action.payload.id);
       bugs.list[index].resolved = true;
     },
 
     //° ────────────────────────────────── STUB: ASSIGN TEAM MEMBER ─────
-    assignTeamMember: (bugs, action) => {
-      const { bugId, userId } = action.payload;
+    bugAssignedToUser: (bugs, action) => {
+      const { id: bugId, userId } = action.payload;
       // const userIndex = findIndexById(users, userId);
       const bugIndex = findIndexById(bugs.list, bugId);
       // users[userIndex].bugs.push(bugs[bugIndex]);
@@ -90,6 +85,7 @@ const slice = createSlice({
 //§                          SECTION ACTION CREATORS                           */
 //€ -------------------------------------------------------------------------- */
 
+//° ────────────────────────────────────────────────────────── STUB: LOAD BUGS ─────
 export const loadBugs = () => (dispatch, getState) => {
   const { lastFetch } = getState().entities.bugs;
   if (Math.floor((Date.now() - lastFetch) / 60000) < 10) return;
@@ -102,6 +98,34 @@ export const loadBugs = () => (dispatch, getState) => {
     })
   );
 };
+
+//° ─────────────────────────────────────────────────── STUB: ADD BUG ─────
+export const addBug = (bug) =>
+  apiCallBegan({
+    url: 'bugs',
+    method: 'POST',
+    reqBody: bug,
+    onSuccess: bugAdded.type,
+  });
+
+//° ─────────────────────────────────────────────────── STUB: RESOLVE BUG ─────
+export const resolveBug = (bugId) =>
+  apiCallBegan({
+    url: 'bugs/' + bugId,
+    method: 'PATCH',
+    reqBody: { resolved: true },
+    onSuccess: bugResolved.type,
+  });
+
+//° ───────────────────────────────────────────── STUB: ASSIGN BUG TO USER ─────
+export const assignBugToUser = (bugId, userId) =>
+  apiCallBegan({
+    url: 'bugs/' + bugId,
+    method: 'PATCH',
+    reqBody: { userId },
+    onSuccess: bugAssignedToUser.type,
+  });
+
 //§ ---------------------- END !SECTION ACTION CREATORS ---------------------- */
 
 //€ -------------------------------------------------------------------------- */
@@ -120,7 +144,6 @@ export const getBugsByUser = (userId) =>
     (state) => state.entities.bugs,
     (bugs) => bugs.filter((bug) => bug.teamMember === userId)
   );
-
 //§ ------------------------- END !SECTION SELECTORS ------------------------- */
 
 //€ -------------------------------------------------------------------------- */
@@ -132,7 +155,7 @@ export const {
   bugAdded,
   bugRemoved,
   bugResolved,
-  assignTeamMember,
+  bugAssignedToUser,
   bugsReceived,
   bugsRequested,
   bugsRequestFailed,

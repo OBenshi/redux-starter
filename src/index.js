@@ -4,9 +4,12 @@ import {
   bugAdded,
   bugRemoved,
   bugResolved,
-  assignTeamMember,
+  bugAssignedToUser,
   getBugsByUser,
   loadBugs,
+  addBug,
+  resolveBug,
+  assignBugToUser,
 } from './store/bugs';
 
 import {
@@ -16,17 +19,16 @@ import {
   getUnresolvedBugs,
 } from './store/projects';
 
-import { addUser, addBugToUser } from './store/users';
+import { userAdded } from './store/users';
 
 const store = configureStore();
 const unsubscribe = store.subscribe(() => {
   // console.log('storeState', store.getState());
 });
 store.dispatch(loadBugs());
-setInterval(() => {
-  console.log(`22222`, 22222);
-  store.dispatch(loadBugs());
-}, 2000);
+setTimeout(() => store.dispatch(assignBugToUser(1, 4)), 2000);
+
+store.dispatch(addBug({ description: 'wow2222' }));
 
 // store.dispatch(bugAdded('bug 1'));
 // store.dispatch({ type: 'error', payload: 'bug 2' });
