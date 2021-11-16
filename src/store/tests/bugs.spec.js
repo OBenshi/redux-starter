@@ -64,7 +64,42 @@ describe('bugSlice', () => {
 
     expect(bugSlice().list[0].resolved).toBe(false);
   });
-
+  describe('loading bugs', () => {
+    describe('if the bug exists in the cache', () => {
+      it('should not be fetched from the server again', async () => {
+        fakeAxios.onGet('/bugs').reply(200, [{ id: 1 }]);
+        await store.dispatch(loadBugs());
+        await store.dispatch(loadBugs());
+        expect(fakeAxios.history.get.length).toBe(1);
+      });
+    });
+    describe('if the bug does not exists in the cache', () => {
+      it('should be fetched from the server and put in the store', async () => {
+        fakeAxios.onGet('/bugs').reply(200, [{ id: 1 }]);
+        await store.dispatch(loadBugs());
+        expect(bugSlice().list).toHaveLength(1);
+      });
+      describe('loading indicator', () => {
+        it('should be true while fetching the bugs', () => {
+          fakeAxios.onGet('/bugs').reply(() => {
+            expect(bugSlice().loading).toBe(true);
+            return [{ id: 1 }];
+          });
+          store.dispatch(loadBugs());
+        });
+        it('should be false after fetching the bugs', async () => {
+          fakeAxios.onGet('/bugs').reply(200, [{ id: 1 }]);
+          await store.dispatch(loadBugs());
+          expect(bugSlice().loading).toBe(false);
+        });
+        it('should be false if the server returns error', async () => {
+          fakeAxios.onGet('/bugs').reply(500);
+          await store.dispatch(loadBugs());
+          expect(bugSlice().loading).toBe(false);
+        });
+      });
+    });
+  });
   describe('selectors', () => {
     it('should get unresolved bugs‚', () => {
       const state = createState();
